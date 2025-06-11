@@ -18,7 +18,6 @@ from eval.utils import (
 )
 from eval.gsm.examplars import EXAMPLARS as GSM_EXAMPLARS
 
-
 exact_match = evaluate.load("exact_match")
 
 
@@ -27,13 +26,23 @@ def main(args):
 
     print("Loading data...")
     test_data = []
-    with open(os.path.join(args.data_dir, f"test.jsonl")) as fin:
-        for line in fin:
-            example = json.loads(line)
-            test_data.append({
-                "question": example["question"],
-                "answer": example["answer"].split("####")[1].strip()
-            })
+    # with open(os.path.join(args.data_dir, f"test.jsonl")) as fin:
+    #     for line in fin:
+    #         example = json.loads(line)
+    #         test_data.append({
+    #             "question": example["question"],
+    #             "answer": example["answer"].split("####")[1].strip()
+    #         })
+
+    from datasets import load_dataset
+    for example in load_dataset("openai/gsm8k", "main", split="test"):
+        test_data.append({
+            "question": example["question"],
+            "answer": example["answer"].split("####")[1].strip()
+        })
+
+
+
         
     # some numbers are in the `x,xxx` format, and we want to remove the comma
     for example in test_data:
@@ -254,7 +263,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--n_shot", 
         type=int, 
-        default=8, 
+        default=0, 
         help="max number of examples to use for demonstration."
     )
     parser.add_argument(
@@ -265,7 +274,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--eval_batch_size", 
         type=int, 
-        default=1, 
+        default=512, 
         help="batch size for evaluation."
     )
     parser.add_argument(

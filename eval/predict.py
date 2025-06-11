@@ -134,17 +134,30 @@ if __name__ == "__main__":
     if args.model_name_or_path is not None:
         prompts = []
         chat_formatting_function = dynamic_import_function(args.chat_formatting_function) if args.use_chat_format else None
+        
+        # thanmay added because template function expects tokenizer
+        model, tokenizer = load_hf_lm_and_tokenizer(
+            model_name_or_path=args.model_name_or_path, 
+            tokenizer_name_or_path=args.tokenizer_name_or_path,
+            load_in_8bit=args.load_in_8bit, 
+            device_map="balanced_low_0" if torch.cuda.device_count() > 1 else "auto",
+            gptq_model=args.gptq,
+            use_fast_tokenizer=not args.use_slow_tokenizer,
+        )
+        
         for instance in instances:
             if "messages" in instance:
                 if not args.use_chat_format:
                     raise ValueError("If `messages` is in the instance, `use_chat_format` should be True.")
                 assert all("role" in message and "content" in message for message in instance["messages"]), \
                     "Each message should have a `role` and a `content` field."
-                prompt = eval(args.chat_formatting_function)(instance["messages"], add_bos=False)
+                # TJ: comment prompt = eval(args.chat_formatting_function)(instance["messages"], add_bos=False)
+                prompt = chat_formatting_function([instance["messages"][0]], tokenizer, add_bos=False)
             elif "prompt" in instance:
                 if args.use_chat_format:
                     messages = [{"role": "user", "content": instance["prompt"]}]
-                    prompt = chat_formatting_function(messages, add_bos=False)
+                    # TJ: add tokenizer to args passed
+                    prompt = chat_formatting_function(messages, tokenizer, add_bos=False)
                 else:
                     prompt = instance["prompt"]
             else:
