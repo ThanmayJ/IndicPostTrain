@@ -170,7 +170,7 @@ if __name__ == "__main__":
     parser.add_argument("--dataset", type=str, choices=["ai2_arc-easy", "ai2_arc-challenge", "ai4bharat/ai2_arc-easy-translated", "ai4bharat/ai2_arc-challenge-translated"])
     parser.add_argument("--script", type=str, default="native", choices=["roman", "native"])
     parser.add_argument("--lang", type=str, choices=["hi", "ml", "gu", "ta", "mr"])
-    parser.add_argument("--save_dir", type=str, default="results/arc/llama-7B/")
+    parser.add_argument("--save_dir", type=str, default="results/arc/")
     parser.add_argument(
         "--model_name_or_path",
         type=str,
@@ -184,9 +184,9 @@ if __name__ == "__main__":
         help="if specified, we will load the tokenizer from here.",
     )
     parser.add_argument(
-        "--n_instances",
-        type=int,
-        help="if specified, a maximum of n_instances per subject will be used for the evaluation.",
+        "--use_slow_tokenizer",
+        action="store_true",
+        help="If given, we will use the slow tokenizer."
     )
     parser.add_argument("--eval_batch_size", type=int, default=1, help="batch size for evaluation.")
     parser.add_argument(
@@ -210,5 +210,25 @@ if __name__ == "__main__":
         default="eval.templates.create_prompt_with_tulu_chat_format",
         help="The function to use to create the chat format. This function will be dynamically imported. Please see examples in `eval/templates.py`.",
     )
+    parser.add_argument(
+        "--hf_revision",
+        type=str,
+        default=None,
+        help="if specified, we will load the model from a revision of the model in the hub"
+    )
+    parser.add_argument(
+        "--upload_to_hf",
+        type=str,
+        default=None,
+        help="If specified, we will upload the results to Hugging Face Datasets. "
+             "This should be the name of the dataset to upload to."
+    )
+    parser.add_argument(
+        "--hf_upload_name",
+        type=str,
+        default=None,
+        help="If uploading to hf, this is the model name"
+    )
+    args = parser.parse_args()
     args = parser.parse_args()
     main(args)
