@@ -178,15 +178,15 @@ def main(args):
 
     if args.upload_to_hf is not None:
         results = {"average_accuracy": acc}
-        task_name = f"oi_mmlu-indic_{subject}_{args.ntrain}shots"
+        task_name = f"oi_milu_{subject}_{args.ntrain}shots"
         upload_results_to_hf(results, args.upload_to_hf, args.hf_upload_name, task_name=task_name, primary_score=acc)
         check_and_upload_model_metadata(args.model_name_or_path, args.upload_to_hf, args.hf_upload_name, hf_revision=args.hf_revision)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--ntrain", type=int, default=5)
-    parser.add_argument("--data_dir", type=str, default="data/eval/mmlu-indic/", help="Directory where lang folders are present inside which dev/ and test/ folders are located.")
-    parser.add_argument("--save_dir", type=str, default="results/mmlu-indic/")
+    parser.add_argument("--data_dir", type=str, default="data/eval/milu/", help="Directory where lang folders are present inside which dev/ and test/ folders are located.")
+    parser.add_argument("--save_dir", type=str, default="results/milu/")
     parser.add_argument("--subject_name", type=str, default="general_knowledge", help="The base name of your CSV file pair (e.g., 'my_topic' for my_topic_dev.csv).")
     parser.add_argument("--model_name_or_path", type=str, default=None, help="if specified, we will load the model to generate the predictions.")
     parser.add_argument("--hf_revision", type=str, default=None, help="if specified, we will load the model from a revision of the model in the hub")
