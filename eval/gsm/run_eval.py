@@ -16,7 +16,7 @@ from eval.utils import (
     upload_results_to_hf,
     check_and_upload_model_metadata
 )
-from eval.gsm.examplars import EXAMPLARS as GSM_EXAMPLARS
+
 
 exact_match = evaluate.load("exact_match")
 
@@ -35,7 +35,19 @@ def main(args):
     #         })
 
     from datasets import load_dataset
-    for example in load_dataset("openai/gsm8k", "main", split="test"):
+
+    if args.lang == "en":
+        dataset = load_dataset("openai/gsm8k", "main", split="test")
+        from eval.gsm.examplars import EXAMPLARS as GSM_EXAMPLARS
+    else:
+        if args.script == "native":
+            from eval.gsm.examplars import HINDI_EXAMPLARS as GSM_EXAMPLARS
+            dataset = load_dataset("sarvamai/gsm8k-indic", args.lang, split="test")
+        else:
+            from eval.gsm.examplars import HINDI_R_EXAMPLARS as GSM_EXAMPLARS
+            dataset = load_dataset("sarvamai/gsm8k-indic", f"{args.lang}_{args.script}", split="test")
+
+    for example in dataset:
         test_data.append({
             "question": example["question"],
             "answer": example["answer"].split("####")[1].strip()
@@ -56,7 +68,6 @@ def main(args):
     if not os.path.exists(args.save_dir):
         os.makedirs(args.save_dir, exist_ok=True)
 
-    global GSM_EXAMPLARS
     if args.n_shot:
         if len(GSM_EXAMPLARS) > args.n_shot:
             GSM_EXAMPLARS = random.sample(GSM_EXAMPLARS, args.n_shot)
@@ -327,6 +338,20 @@ if __name__ == "__main__":
         type=str,
         default=None,
         help="If uploading to hf, this is the model name"
+    )
+    parser.add_argument(
+        "--lang",
+        type=str,
+        default="en",
+        choices=["en", "hi", "bn", "kn", "ml", "mr", "or", "pa", "ta", "te"],
+        help="Which language to evaluate on"
+    )
+    parser.add_argument(
+        "--script",
+        type=str,
+        default="native",
+        choices=["native", "roman"],
+        help="Which script to evaluate on"
     )
     args = parser.parse_args()
 
