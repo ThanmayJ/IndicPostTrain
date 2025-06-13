@@ -238,7 +238,7 @@ if __name__ == "__main__":
         default="hin_Deva",
         choices=list(lang_map.keys())+list(lang_map2.keys()),
     )
-    parser.add_argument("--save_dir", type=str, default="results/flores/llama-7B/")
+    parser.add_argument("--save_dir", type=str, default="results/flores/")
     parser.add_argument(
         "--bleurt_model_name_or_path",
         type=str,
